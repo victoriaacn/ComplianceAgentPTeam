@@ -3,7 +3,7 @@ import axios from 'axios';
 
 function App() {
   const [question, setQuestion] = useState('');
-  const [response, setResponse] = useState('');
+  const [responses, setResponses] = useState([]); // changed to array
 
   const handleInputChange = (event) => {
     setQuestion(event.target.value);
@@ -14,7 +14,7 @@ function App() {
 
     try {
       const res = await axios.get(`http://127.0.0.1:8000/ask?question=${encodeURIComponent(question)}`);
-      setResponse(res.data.response);
+      setResponses(res.data.response); // assuming response is an array
     } catch (error) {
       console.error('Error during API request:', error);
     }
@@ -32,10 +32,21 @@ function App() {
         />
         <button type="submit">Ask</button>
       </form>
-      {response && <p><strong>Response:</strong> {response}</p>}
+
+      {responses.length > 0 && (
+        <div>
+          <strong>Response:</strong>
+          <ul>
+            {responses.map((msg, index) => (
+              <li key={index}>{msg}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+           {console.log(responses)}
     </div>
+
   );
 }
 
 export default App;
-
