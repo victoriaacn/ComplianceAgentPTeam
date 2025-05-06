@@ -12,7 +12,7 @@ import {
   IconButton,
   Collapse,
   Paper,
-  Grid,
+  InputAdornment
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -49,94 +49,69 @@ function App() {
 
   return (
     <Box
-      minHeight="100vh"
       sx={{
-        backgroundColor: '#B3E5FC',
+        height: '100vh',
         display: 'flex',
-        alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'Poppins, sans-serif',
+        alignItems: 'center',
+        backgroundColor: '#E3F2FD'
       }}
     >
-      <Paper
-        elevation={6}
-        sx={{
-          p: 5,
-          borderRadius: 4,
-          width: '90%',
-          maxWidth: 600,
-          backgroundColor: '#E1F5FE',
-        }}
-      >
-        <Grid container alignItems="center" justifyContent="center" spacing={1}>
-          <Grid item>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 'bold',
-                color: '#01579B',
-              }}
-            >
+      <Paper elevation={3} sx={{ padding: 6, borderRadius: 4, maxWidth: 700, width: '100%' }}>
+        <Box textAlign="center" mb={4}>
+          <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
+            <CheckCircleOutlineIcon fontSize="large" color="primary" />
+            <Typography variant="h4" fontWeight="bold">
               Compliance Agent
             </Typography>
-          </Grid>
-          <Grid item>
-            <CheckCircleOutlineIcon sx={{ fontSize: 40, color: '#0288D1' }} />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         <form onSubmit={handleSubmit}>
-          <Box mt={4} display="flex" gap={2}>
-            <TextField
-              fullWidth
-              label="Ask Away!"
-              variant="outlined"
-              value={question}
-              onChange={handleInputChange}
-              sx={{
-                backgroundColor: 'white',
-                borderRadius: 1,
-              }}
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{
-                backgroundColor: '#0288D1',
-                '&:hover': { backgroundColor: '#0277BD' },
-                minWidth: 80,
-              }}
-              disabled={loading || !question.trim()}
-            >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Ask'}
-            </Button>
-          </Box>
+          <TextField
+            fullWidth
+            placeholder="Ask your question..."
+            value={question}
+            onChange={handleInputChange}
+            variant="outlined"
+            sx={{ mb: 3 }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{ minWidth: 80 }}
+                    disabled={loading || !question.trim()}
+                  >
+                    {loading ? <CircularProgress size={20} color="inherit" /> : 'Ask'}
+                  </Button>
+                </InputAdornment>
+              )
+            }}
+          />
         </form>
 
         {responses.length > 0 && (
           <Card
             variant="outlined"
-            sx={{
-              backgroundColor: '#B3E5FC',
-              mt: 4,
-              borderRadius: 2,
-            }}
+            sx={{ backgroundColor: '#F1F8E9', mt: 2, borderRadius: 2 }}
           >
             <CardContent>
               <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                  Response
-                </Typography>
+                <Typography variant="h6">Response</Typography>
                 <IconButton onClick={toggleVisibility}>
                   {showResponses ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </Box>
               <Collapse in={showResponses}>
-                <ul style={{ paddingLeft: '1.2rem' }}>
-                  {responses.map((msg, index) => (
-                    <li key={index}>{msg}</li>
-                  ))}
-                </ul>
+                <Box mt={2}>
+                  <ul>
+                    {responses.map((msg, index) => (
+                      <li key={index} style={{ marginBottom: 8 }}>{msg}</li>
+                    ))}
+                  </ul>
+                </Box>
               </Collapse>
             </CardContent>
           </Card>
