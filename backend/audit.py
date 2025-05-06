@@ -1,8 +1,8 @@
-import csv
 import os
 from dotenv import load_dotenv
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
+from employee_mapper import map_employees_to_noncompliant_processes
 
 load_dotenv()
 
@@ -85,3 +85,7 @@ def audit():
 if __name__ == "__main__":
     result = audit()
     print("Audit Result:", result)
+    
+CSV_PATH = "data/Employee_Directory_Internal_Emails.csv"
+resultemp = map_employees_to_noncompliant_processes(result, CSV_PATH)
+print("Employee Mapping Result:", resultemp)
