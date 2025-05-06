@@ -1,14 +1,16 @@
 import os
+import asyncio
+import json
+import re
 from dotenv import load_dotenv
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
-from employee_mapper import map_employees_to_noncompliant_processes
+from send_email import send_emails_for_processes  # Import the email-sending function
 
 load_dotenv()
 
 AZURE_PROJECT_CONNECTION_STRING = os.getenv("AZURE_PROJECT_CONNECTION_STRING")
 AZURE_AUDIT_AGENT_ID = os.getenv("AZURE_AUDIT_AGENT_ID")
-CSV_PATH = "backend/data/Employee_Directory_Internal_Emails.csv"
 
 project_client = AIProjectClient.from_connection_string(
     credential=DefaultAzureCredential(),
@@ -17,75 +19,99 @@ project_client = AIProjectClient.from_connection_string(
 
 agent = project_client.agents.get_agent(AZURE_AUDIT_AGENT_ID)
 
-
-def audit():
+async def ask_audit_agent(question: str):
+    """
+    Ask the audit agent a question and retrieve the response.
+    """
     try:
-        # Create a thread
+        # Create a new thread for the conversation
         thread = project_client.agents.create_thread()
 
-        # Send a message to the agent
+        # Send the user's question to the agent
         project_client.agents.create_message(
             thread_id=thread.id,
             role="user",
-            content=(
-                    "Identify all non-compliant business processes from the policies categorized by risk. Return only the Process IDs, grouped by risk categories: High Risk, Medium Risk, Low Risk. Do not include any other details or descriptions."
-            )
+            content=question
         )
-        print("Thread Created:", thread.id)
-        print("Message Sent to Agent")
-        # Process the thread with the agent
+
+        # Process the agent's response
         project_client.agents.create_and_process_run(
             thread_id=thread.id,
             agent_id=agent.id
         )
 
-        # Retrieve the messages from the thread
+        # Retrieve all messages in the thread
         messages = project_client.agents.list_messages(thread_id=thread.id)
 
-        # Extract and return the first valid response from the agent
-        for msg in messages.text_messages:
-            if msg["type"] == "text" and "text" in msg and "value" in msg["text"]:
-                response = msg["text"]["value"].strip()
-                print("Raw Response from Agent:", response)
-                # If there's a response, process it
-                if response:
-                    # Split the response into categories
-                    categories = {"High Risk": [], "Medium Risk": [], "Low Risk": []}
-                    lines = response.split('\n')
+        # Filter assistant responses that are not just repeating the question
+        assistant_responses = [
+            msg["text"]["value"]
+            for msg in messages.text_messages
+            if msg["type"] == "text"
+            and "text" in msg
+            and "value" in msg["text"]
+            and msg["text"]["value"].strip().lower() != question.strip().lower()
+        ]
 
-                    current_category = None
-                    for line in lines:
-                        line = line.strip()
-                        
-                        if line.startswith("-"):
-                            line = line[1:].strip()  # Remove leading dash and whitespace
-                        if "High Risk" in line:
-                            current_category = "High Risk"
-                        elif "Medium Risk" in line:
-                            current_category = "Medium Risk"
-                        elif "Low Risk" in line:
-                            current_category = "Low Risk"
-                        elif line.startswith("Process"):
-                            if current_category:
-                                process_id = line.split(":")[0].strip()  # Extract Process ID
-                                categories[current_category].append(process_id)
-
-                    # Print the categories (this is where you can check the output)
-                    print("Categorized Processes:", categories)
-                    return categories
-
-        # If no valid response is found, return an error message
-        return {"error": "No valid response received from the agent."}
+        return assistant_responses
     except Exception as e:
-        # Log the error and return it for debugging
-        print(f"Error in audit function: {e}")
-        return {"error": str(e)}
+        print(f"Error while interacting with the audit agent: {e}")
+        return None
 
-# Call the function directly to test the output
+def extract_json_from_response(response: str):
+    """
+    Extract the JSON portion from the agent's response.
+
+    Args:
+        response (str): The full response from the agent.
+
+    Returns:
+        dict: The extracted JSON object, or None if parsing fails.
+    """
+    try:
+        # Use a regular expression to find the JSON portion
+        json_match = re.search(r"\{.*\}", response, re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group())
+        else:
+            print("No JSON found in the response.")
+            return None
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        return None
+
+async def audit():
+    """
+    Perform an audit to identify non-compliant processes and notify employees.
+    """
+    print("Requesting the audit agent to retrieve non-compliant processes and emails...")
+    question = (
+        "Task: Retrieve non-compliant processes and emails.\n\n"
+        "Please provide a list of all non-compliant processes and the email addresses of all employees associated with each non-compliant process. "
+        "Return the data in JSON format."
+    )
+
+    # Ask the audit agent the question
+    responses = await ask_audit_agent(question)
+
+    if not responses:
+        print("No response received from the audit agent.")
+        return
+
+    # Print the responses for debugging
+    for response in responses:
+        print("Audit Agent Response:", response)
+
+        # Extract the JSON portion from the response
+        extracted_data = extract_json_from_response(response)
+        if extracted_data and "processes" in extracted_data:
+            processes = extracted_data["processes"]
+            print("Extracted Processes:", processes)
+            # Send emails for the processes
+            results =  send_emails_for_processes(processes)
+            print("Email sending results:", results)  
+        else:
+            print("Failed to extract processes from the response.")
+
 if __name__ == "__main__":
-    result = audit()
-    print("Audit Result:", result)
-    
-CSV_PATH = "data/Employee_Directory_Internal_Emails.csv"
-resultemp = map_employees_to_noncompliant_processes(result, CSV_PATH)
-print("Employee Mapping Result:", resultemp)
+    asyncio.run(audit())

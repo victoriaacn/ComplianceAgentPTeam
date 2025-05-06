@@ -13,7 +13,7 @@ def send_email(to, subject, body, file_path=None):
     Sends an email using the provided host address.
 
     Args:
-        to (str): Recipient email address.
+        to (list): List of recipient email addresses.
         subject (str): Email subject.
         body (str): Email body.
         file_path (str, optional): Path to a file to attach. Defaults to None.
@@ -21,7 +21,7 @@ def send_email(to, subject, body, file_path=None):
     try:
         # Prepare the payload
         payload = {
-            "To": to,
+            "To": ", ".join(to), # List of recipients
             "Subject": subject,
             "Body": body
         }
@@ -34,7 +34,8 @@ def send_email(to, subject, body, file_path=None):
                     "filename": os.path.basename(file_path),
                     "fileBase64": file_base64
                 })
-        print(f"Sending email to: {EMAIL_HOST}")
+
+        print(f"Sending email to: {', '.join(to)}")
         # Send the POST request
         headers = {
             "Content-Type": "application/json",
@@ -44,18 +45,35 @@ def send_email(to, subject, body, file_path=None):
 
         # Handle the response
         if response.status_code == 200:
-            print("Email sent successfully!")
+            print(f"Email sent successfully to: {', '.join(to)}")
         else:
             print(f"Failed to send email. Status code: {response.status_code}, Response: {response.text}")
     except Exception as e:
         print(f"An error occurred: {e}")
 
-if __name__ == "__main__": 
-    # Input parameters for testing
-    to = "victoria.de.alba@accenture.com"  # Replace with your email for testing
-    subject = "Test Email"
-    body = "This is a test email sent using the SendEmail ACS service."
-    file_path = None  # Set a file path if you want to attach a file
+def send_emails_for_processes(processes):
+    """
+    Sends emails to all recipients for each non-compliant process.
 
-    # Send the email
-    send_email(to, subject, body, file_path)
+    Args:
+        processes (dict): A dictionary where keys are process names and values are lists of email addresses.
+    """
+    results = {}
+    for process, recipients in processes.items():
+        subject = f"Action Required: Non-Compliant Process - {process}"
+        body = f"""
+        Dear Team,
+
+        The following process has been identified as non-compliant: {process}.
+        Please review the relevant policies and take corrective actions.
+
+        Best regards,
+        Compliance Team
+        """
+        try:
+            send_email(recipients, subject, body)
+            results[process] = "Success"
+        except Exception as e:
+            results[process] = f"Failed: {str(e)}"
+
+    return results
