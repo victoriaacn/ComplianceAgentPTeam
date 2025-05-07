@@ -17,6 +17,15 @@ project_client = AIProjectClient.from_connection_string(
 agent = project_client.agents.get_agent(AZURE_AGENT_ID)
 
 def ask_agent(question: str):
+    """
+    Sends a question to the Azure AI agent and retrieves the response.
+
+    Args:
+        question (str): The question to ask the agent.
+
+    Returns:
+        list: A list of responses from the agent.
+    """
     thread = project_client.agents.create_thread()
     project_client.agents.create_message(
         thread_id=thread.id,

@@ -80,38 +80,48 @@ def extract_json_from_response(response: str):
         print(f"Error decoding JSON: {e}")
         return None
 
-async def audit():
+async def perform_audit():
     """
     Perform an audit to identify non-compliant processes and notify employees.
     """
-    print("Requesting the audit agent to retrieve non-compliant processes and emails...")
-    question = (
-        "Task: Retrieve non-compliant processes and emails.\n\n"
-        "Please provide a list of all non-compliant processes and the email addresses of all employees associated with each non-compliant process. "
-        "Return the data in JSON format."
-    )
+    try:
+        print("Requesting the audit agent to retrieve non-compliant processes and emails...")
+        question = (
+            "Task: Retrieve non-compliant processes and emails.\n\n"
+            "Please provide a list of all non-compliant processes and the email addresses of all employees associated with each non-compliant process. "
+            "Return the data in JSON format."
+        )
 
-    # Ask the audit agent the question
-    responses = await ask_audit_agent(question)
+        # Ask the audit agent the question
+        responses = await ask_audit_agent(question)
 
-    if not responses:
-        print("No response received from the audit agent.")
-        return
+        if not responses:
+            print("No response received from the audit agent.")
+            return {"status": "error", "message": "No response received from the audit agent."}
 
-    # Print the responses for debugging
-    for response in responses:
-        print("Audit Agent Response:", response)
+        # Process the responses
+        results = []
+        for response in responses:
+            print("Audit Agent Response:", response)
 
-        # Extract the JSON portion from the response
-        extracted_data = extract_json_from_response(response)
-        if extracted_data and "processes" in extracted_data:
-            processes = extracted_data["processes"]
-            print("Extracted Processes:", processes)
-            # Send emails for the processes
-            results =  send_emails_for_processes(processes)
-            print("Email sending results:", results)  
-        else:
-            print("Failed to extract processes from the response.")
+            # Extract the JSON portion from the response
+            extracted_data = extract_json_from_response(response)
+            if extracted_data and "processes" in extracted_data:
+                processes = extracted_data["processes"]
+                print("Extracted Processes:", processes)
 
-if __name__ == "__main__":
-    asyncio.run(audit())
+                # Send emails for the processes
+                email_results = send_emails_for_processes(processes)
+                print("Email sending results:", email_results)
+
+                results.append({"processes": processes, "email_results": email_results})
+            else:
+                print("Failed to extract processes from the response.")
+                results.append({"status": "error", "message": "Failed to extract processes from the response."})
+
+        return {"status": "success", "results": results}
+
+    except Exception as e:
+        print(f"Error during audit: {e}")
+        return {"status": "error", "message": str(e)}
+

@@ -31,13 +31,74 @@ const ChatBox = () => {
   };
 
   const getRiskColor = (response) => {
-    const responseText = String(response || ''); // Ensure response is a string
-    if (responseText.toLowerCase().includes('high risk') || responseText.toLowerCase().includes('violate')) {
+    const responseText = String(response || '').toLowerCase(); // Ensure response is a string and convert to lowercase
+    const words = responseText.split(/\s+/); // Split response into words
+  
+    // Check for explicit "Risk Level: High", "Risk Level: Medium", or "Risk Level: Low"
+    if (responseText.includes('risk level: high')) {
       return 'red'; // High risk
     }
-    if (responseText.toLowerCase().includes('medium risk') || responseText.toLowerCase().includes('warning')) {
+    if (responseText.includes('risk level: medium')) {
       return 'yellow'; // Medium risk
     }
+    if (responseText.includes('risk level: low')) {
+      return 'green'; // Low risk
+    }
+  
+    // Check for "high risk" within 3 words
+    for (let i = 0; i < words.length; i++) {
+      if (words[i] === 'risk') {
+        for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
+          if (words[j] === 'high') {
+            return 'red'; // High risk
+          }
+        }
+      }
+      if (words[i] === 'high') {
+        for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
+          if (words[j] === 'risk') {
+            return 'red'; // High risk
+          }
+        }
+      }
+    }
+  
+    // Check for "medium risk" within 3 words
+    for (let i = 0; i < words.length; i++) {
+      if (words[i] === 'risk') {
+        for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
+          if (words[j] === 'medium') {
+            return 'yellow'; // Medium risk
+          }
+        }
+      }
+      if (words[i] === 'medium') {
+        for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
+          if (words[j] === 'risk') {
+            return 'yellow'; // Medium risk
+          }
+        }
+      }
+    }
+  
+    // Check for "low risk" within 3 words
+    for (let i = 0; i < words.length; i++) {
+      if (words[i] === 'risk') {
+        for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
+          if (words[j] === 'low') {
+            return 'green'; // Low risk
+          }
+        }
+      }
+      if (words[i] === 'low') {
+        for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
+          if (words[j] === 'risk') {
+            return 'green'; // Low risk
+          }
+        }
+      }
+    }
+  
     return 'white'; // Neutral/low risk
   };
 
@@ -170,7 +231,7 @@ const ChatBox = () => {
                   marginBottom: 1, // Add spacing below the title
                 }}
               >
-                Welcome to Compliance Buddy!
+                Welcome to Einstein Chat
               </Typography>
               <Typography
                 variant="body1"

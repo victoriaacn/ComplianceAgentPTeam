@@ -39,7 +39,7 @@ function App() {
       <AppBar position="static" color="primary">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Compliance Agent
+            Compliance Einstein
           </Typography>
           <IconButton color="inherit" onClick={handleDarkModeToggle}>
             {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
