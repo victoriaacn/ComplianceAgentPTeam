@@ -11,6 +11,8 @@ import {
 } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import ChatBox from './ChatBox'; // Import the ChatBox component
+import AuditProcesses from './AuditProcesses'; // Import the AuditProcesses component
+import RiskAssessment from './RiskAssessment'; // Import the RiskAssessment component
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 
@@ -50,16 +52,29 @@ function App() {
       <Box
         sx={{
           display: 'flex',
-          justifyContent: 'flex-start', // Align ChatBox to the left
-          alignItems: 'center',
+          justifyContent: 'space-between', // Space between ChatBox and right-side components
+          alignItems: 'flex-start', // Align items to the top
           height: 'calc(100vh - 64px)', // Subtract AppBar height
           backgroundColor: theme.palette.background.default,
-          paddingLeft: 4, // Add padding to the left for spacing
+          padding: 4, // Add padding around the content
         }}
       >
         {/* ChatBox takes up half the width */}
         <Box sx={{ width: '50%' }}>
           <ChatBox />
+        </Box>
+
+        {/* Right-side components */}
+        <Box
+          sx={{
+            width: '30%', // Adjust width for the right-side components
+            display: 'flex',
+            flexDirection: 'column', // Stack components vertically
+            gap: 4, // Add spacing between components
+          }}
+        >
+          <AuditProcesses />
+          <RiskAssessment />
         </Box>
       </Box>
     </ThemeProvider>
