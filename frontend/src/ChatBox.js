@@ -26,6 +26,10 @@ const ChatBox = () => {
     setQuestion(event.target.value);
   };
 
+  const handlePromptClick = (prompt) => {
+    setQuestion(prompt); // Autofill the input field with the selected prompt
+  };
+
   const getRiskColor = (response) => {
     const responseText = String(response || ''); // Ensure response is a string
     if (responseText.toLowerCase().includes('high risk') || responseText.toLowerCase().includes('violate')) {
@@ -72,6 +76,13 @@ const ChatBox = () => {
       alert('Text copied to clipboard!');
     });
   };
+
+  const promptIdeas = [
+    'What are the most common compliance violations to avoid?',
+    'What approvals are required for financial or legal decisions?',
+    'What are the rules for handling sensitive or production data?',
+    'What documentation is required for audits or legal reviews?',
+  ];
 
   return (
     <Box
@@ -130,14 +141,70 @@ const ChatBox = () => {
       <Box
         sx={{
           flex: 1,
-          overflowY: 'auto', // Scrollable area for chat messages
+          overflowY: 'auto',
           padding: 2,
           backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : '#f0f0f0', // Inner box color
           borderRadius: 2,
           marginTop: 4, // Add more white space above the grey box
+          display: responses.length === 0 ? 'grid' : 'block', // Show grid layout for prompts if no chats
+          gridTemplateColumns: '1fr 1fr',
+          gap: 1, // Reduced gap between rectangles
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        {responses.length > 0 ? (
+        {responses.length === 0 ? (
+          <>
+            {/* Header Section */}
+            <Box
+              sx={{
+                gridColumn: 'span 2', // Center the header across both columns
+                textAlign: 'center',
+                marginBottom: 2, // Add spacing below the header
+              }}
+            >
+              <Typography
+                variant="h5"
+                sx={{
+                  color: theme.palette.text.primary,
+                  marginBottom: 1, // Add spacing below the title
+                }}
+              >
+                Welcome to Compliance Buddy!
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: theme.palette.text.secondary,
+                }}
+              >
+                Your assistant for all your compliance needs. Get started by asking a question or selecting one of the sample questions below.
+              </Typography>
+            </Box>
+
+            {/* Prompt Ideas */}
+            {promptIdeas.map((prompt, index) => (
+              <Box
+                key={index}
+                onClick={() => handlePromptClick(prompt)}
+                sx={{
+                  backgroundColor: theme.palette.mode === 'dark' ? '#2c2c2c' : '#e0e0e0',
+                  color: theme.palette.text.primary,
+                  borderRadius: 2,
+                  padding: 2,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  boxShadow: 2,
+                  '&:hover': {
+                    backgroundColor: theme.palette.mode === 'dark' ? '#3a3a3a' : '#d6d6d6',
+                  },
+                }}
+              >
+                {prompt}
+              </Box>
+            ))}
+          </>
+        ) : (
           responses.map((item, index) => (
             <Box key={index} sx={{ mb: 2 }}>
               {/* User's Question */}
@@ -194,10 +261,6 @@ const ChatBox = () => {
               ))}
             </Box>
           ))
-        ) : (
-          <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
-            No messages yet. Ask a question to get started!
-          </Typography>
         )}
       </Box>
 
