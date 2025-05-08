@@ -4,7 +4,7 @@ import requests
 import json
 import re
 from dotenv import load_dotenv
-from ask_agent import ask_agent  # Import the ask_agent function
+from email_agent import ask_email_agent  # Import the email agent function
 
 # Load environment variables
 load_dotenv()
@@ -20,6 +20,10 @@ def send_email(to, subject, body, file_path=None):
         subject (str): Email subject.
         body (str): Email body (plain text).
         file_path (str, optional): Path to a file to attach. Defaults to None.
+
+    Returns:
+        tuple: (bool, str) - A tuple where the first value indicates success (True/False),
+               and the second value is an error message or None if successful.
     """
     try:
         # Ensure 'to' is a string
@@ -53,10 +57,13 @@ def send_email(to, subject, body, file_path=None):
         # Handle the response
         if response.status_code == 200:
             print(f"Email sent successfully to: {to}")
+            return True, None  # Email sent successfully
         else:
             print(f"Failed to send email. Status code: {response.status_code}, Response: {response.text}")
+            return False, f"Failed to send email. Status code: {response.status_code}, Response: {response.text}"
     except Exception as e:
         print(f"An error occurred while sending email to {to}: {e}")
+        return False, str(e)  # Return failure and the error message
 
 def extract_json_from_response(response):
     """
@@ -101,12 +108,19 @@ def generate_email_content(process):
         # Use the agent to generate the email content
         question = (
             f"Generate an email subject and body for the non-compliant process: {process}. "
-            f"Ensure the email is professional, includes a proposed meeting invite with time, date and location as Teams Invite and signed as 'Audit Agent Einstein'. "
-            f"Provide the following structured output:\n"
+            f"Ensure the email is professional, includes a proposed meeting invite with two real dates and times for mandatory training or discussion, "
+            f"and is signed as 'Audit Agent Einstein'. Use the following structured output:\n"
             f"- **Email Subject:** [Single-line subject]\n"
-            f"- **Email Body:** [Multi-line body]"
+            f"- **Email Body:** [Multi-line body including meeting details]\n\n"
+            f"The email body should include the following:\n"
+            f"1. A greeting addressing the recipient by name (use {{name}} as a placeholder).\n"
+            f"2. A description of the non-compliance issue related to the process '{process}'.\n"
+            f"3. A statement that mandatory training or a discussion is required.\n"
+            f"4. Two proposed meeting dates and times (e.g., 'May 20, 2025, at 1:00 PM' and 'May 22, 2025, at 3:00 PM').\n"
+            f"5. A closing statement encouraging the recipient to attend one of the meetings.\n"
+            f"6. A signature as 'Audit Agent Einstein'."
         )
-        response = ask_agent(question)  # Call the agent to generate the content
+        response = ask_email_agent(question)  # Call the agent to generate the content
 
         # Log the raw response for debugging
         print("Raw Agent Response:", response)
@@ -133,20 +147,32 @@ def send_emails_for_processes(processes):
     Sends individual emails to all recipients for each non-compliant process.
 
     Args:
-        processes (dict): A dictionary where keys are process names and values are lists of email addresses.
+        processes (dict): A dictionary where keys are process names and values are lists of recipient objects
+                          (each containing "name" and "email").
+
+    Returns:
+        dict: A dictionary where keys are process names and values are lists of email results.
     """
     results = {}
     for process, recipients in processes.items():
         try:
             # Generate email content
-            subject, body = generate_email_content(process)
+            subject, body_template = generate_email_content(process)
 
             for recipient in recipients:
                 try:
-                    send_email(recipient, subject, body)  # Send email
-                    results[process] = results.get(process, []) + [f"Success: {recipient}"]
+                    # Personalize the email body with the recipient's name
+                    recipient_name = recipient.get("name", "Valued Employee")
+                    personalized_body = body_template.replace("{name}", recipient_name)
+
+                    # Send the email
+                    success, error = send_email(recipient["email"], subject, personalized_body)
+                    if success:
+                        results[process] = results.get(process, []) + [f"Success: {recipient['email']}"]
+                    else:
+                        results[process] = results.get(process, []) + [f"Failed: {recipient['email']}, Error: {error}"]
                 except Exception as e:
-                    results[process] = results.get(process, []) + [f"Failed: {recipient}, Error: {str(e)}"]
+                    results[process] = results.get(process, []) + [f"Failed: {recipient['email']}, Error: {str(e)}"]
         except Exception as e:
             results[process] = f"Failed to generate email content for process {process}, Error: {str(e)}"
 

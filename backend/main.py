@@ -31,10 +31,34 @@ async def audit():
     try:
         # Call the perform_audit function
         results = await perform_audit()
-        # Extract processes and email_results from the nested structure
-        processes = results["results"][0]["processes"]
-        email_results = results["results"][0]["email_results"]
+
+        # Check if the response contains results
+        if results["status"] != "success" or not results.get("results"):
+            return JSONResponse(
+                status_code=500,
+                content={"error": results.get("message", "Unknown error occurred during the audit.")}
+            )
+
+        # Flatten processes and email_results if there are multiple results
+        processes = {}
+        email_results = {}
+
+        for result in results["results"]:
+            # Merge processes
+            for process, employees in result.get("processes", {}).items():
+                if process not in processes:
+                    processes[process] = []
+                processes[process].extend(employees)
+
+            # Merge email results
+            for process, email_statuses in result.get("email_results", {}).items():
+                if process not in email_results:
+                    email_results[process] = []
+                email_results[process].extend(email_statuses)
+
+        # Return the flattened structure
         return {"processes": processes, "email_results": email_results}
+
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 

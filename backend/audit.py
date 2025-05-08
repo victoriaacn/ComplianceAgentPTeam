@@ -85,11 +85,19 @@ async def perform_audit():
     Perform an audit to identify non-compliant processes and notify employees.
     """
     try:
-        print("Requesting the audit agent to retrieve non-compliant processes and emails...")
+        print("Requesting the audit agent to retrieve non-compliant processes, names, and emails...")
         question = (
-            "Task: Retrieve non-compliant processes and emails.\n\n"
-            "Please provide a list of all non-compliant processes and the email addresses of all employees associated with each non-compliant process. "
-            "Return the data in JSON format."
+            "Task: Retrieve non-compliant processes, employee names, and emails.\n\n"
+            "Please provide a list of all non-compliant processes and the names and email addresses of all employees associated with each non-compliant process. "
+            "Return the data in JSON format with the following structure:\n"
+            "{\n"
+            "  \"processes\": {\n"
+            "    \"Process Name\": [\n"
+            "      {\"name\": \"Employee Name\", \"email\": \"Employee Email\"},\n"
+            "      ...\n"
+            "    ]\n"
+            "  }\n"
+            "}"
         )
 
         # Ask the audit agent the question

@@ -138,7 +138,9 @@ const AuditResultsModal = ({ results, page, rowsPerPage, onClose, onChangePage, 
                     .map(([process, employees]) => (
                       <TableRow key={process}>
                         <TableCell>{process}</TableCell>
-                        <TableCell>{employees.join(', ')}</TableCell>
+                        <TableCell>
+                          {employees.map((employee) => `${employee.name} (${employee.email})`).join(', ')}
+                        </TableCell>
                         <TableCell>
                           {Array.isArray(emailResults[process])
                             ? emailResults[process].join(', ')
