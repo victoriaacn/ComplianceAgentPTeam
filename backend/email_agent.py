@@ -1,4 +1,4 @@
-# This script is used to ask a question to the Azure AI agent and get the response.
+# This script is used to ask a question to the Azure AI email agent and get the response.
 import os
 from dotenv import load_dotenv
 from azure.ai.projects import AIProjectClient
@@ -7,37 +7,37 @@ from azure.identity import DefaultAzureCredential
 load_dotenv()
 
 AZURE_PROJECT_CONNECTION_STRING = os.getenv("AZURE_PROJECT_CONNECTION_STRING")
-AZURE_AGENT_ID = os.getenv("AZURE_AGENT_ID")
+AZURE_EMAIL_AGENT_ID = os.getenv("AZURE_EMAIL_AGENT_ID")
 
-project_client = AIProjectClient.from_connection_string(
+email_project_client = AIProjectClient.from_connection_string(
     credential=DefaultAzureCredential(),
     conn_str=AZURE_PROJECT_CONNECTION_STRING
 )
 
-agent = project_client.agents.get_agent(AZURE_AGENT_ID)
+email_agent = email_project_client.agents.get_agent(AZURE_EMAIL_AGENT_ID)
 
-def ask_agent(question: str):
+def ask_email_agent(question: str):
     """
-    Sends a question to the Azure AI agent and retrieves the response.
+    Sends a question to the Azure AI email agent and retrieves the response.
 
     Args:
-        question (str): The question to ask the agent.
+        question (str): The question to ask the email agent.
 
     Returns:
-        list: A list of responses from the agent.
+        list: A list of responses from the email agent.
     """
-    thread = project_client.agents.create_thread()
-    project_client.agents.create_message(
+    thread = email_project_client.agents.create_thread()
+    email_project_client.agents.create_message(
         thread_id=thread.id,
         role="user",
         content=question
     )
-    project_client.agents.create_and_process_run(
+    email_project_client.agents.create_and_process_run(
         thread_id=thread.id,
-        agent_id=agent.id
+        agent_id=email_agent.id
     )
 
-    messages = project_client.agents.list_messages(thread_id=thread.id)
+    messages = email_project_client.agents.list_messages(thread_id=thread.id)
 
     # Filter assistant responses that are not just repeating the question
     assistant_responses = [
