@@ -8,16 +8,32 @@ import {
   Typography,
   IconButton,
   Switch,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import ChatBox from './ChatBox'; // Import the ChatBox component
-import AuditProcesses from './AuditProcesses'; // Import the AuditProcesses component
-import RiskAssessment from './RiskAssessment'; // Import the RiskAssessment component
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import MenuIcon from '@mui/icons-material/Menu';
+import HomeIcon from '@mui/icons-material/Home';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import ChatIcon from '@mui/icons-material/Chat';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import EinsteinNav from './assets/OfficialNavIcon.png'; // Adjust the path as necessary
+
+// Import your pages
+import Welcome from './pages/Welcome';
+import AuditPage from './pages/AuditPage';
+import ChatPage from './pages/ChatPage';
+import RiskAsPage from './pages/RiskAsPage';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const theme = createTheme({
     palette: {
@@ -32,51 +48,106 @@ function App() {
     setDarkMode((prevMode) => !prevMode);
   };
 
+  const toggleDrawer = (open) => () => {
+    setDrawerOpen(open);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {/* AppBar */}
-      <AppBar position="static" color="primary">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Compliance Einstein
-          </Typography>
-          <IconButton color="inherit" onClick={handleDarkModeToggle}>
-            {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
-          <Switch checked={darkMode} onChange={handleDarkModeToggle} />
-        </Toolbar>
-      </AppBar>
+      <Router>
+        {/* AppBar */}
+        <AppBar position="static" color="primary light">
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={toggleDrawer(true)}
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Box
+              component={Link}
+              to="/"
+              sx={{
+                flexGrow: 1,
+                display: 'flex',
+                alignItems: 'center',
+                textDecoration: 'none', // Remove underline
+              }}
+            >
+              <img
+                src={EinsteinNav}
+                alt="Einstein Navigation"
+                style={{
+                  height: '100px', // Adjust height as needed
+                }}
+              />
+            </Box>
+            <IconButton color="inherit" onClick={handleDarkModeToggle}>
+              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+            <Switch checked={darkMode} onChange={handleDarkModeToggle} />
+          </Toolbar>
+        </AppBar>
 
-      {/* Main Content */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between', // Space between ChatBox and right-side components
-          alignItems: 'flex-start', // Align items to the top
-          height: 'calc(100vh - 64px)', // Subtract AppBar height
-          backgroundColor: theme.palette.background.default,
-          padding: 4, // Add padding around the content
-        }}
-      >
-        {/* ChatBox takes up half the width */}
-        <Box sx={{ width: '50%' }}>
-          <ChatBox />
-        </Box>
+        {/* Drawer for Navigation */}
+        <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
+          <Box
+            sx={{ width: 250 }}
+            role="presentation"
+            onClick={toggleDrawer(false)}
+            onKeyDown={toggleDrawer(false)}
+          >
+            <List>
+              <ListItem button component={Link} to="/">
+                <ListItemIcon>
+                  <HomeIcon />
+                </ListItemIcon>
+                <ListItemText primary="Welcome" />
+              </ListItem>
+              <ListItem button component={Link} to="/risk-assessment">
+                <ListItemIcon>
+                  <AssessmentIcon />
+                </ListItemIcon>
+                <ListItemText primary="Risk Assessment" />
+              </ListItem>
+              <ListItem button component={Link} to="/audit-processes">
+                <ListItemIcon>
+                  <ListAltIcon />
+                </ListItemIcon>
+                <ListItemText primary="Audit Processes" />
+              </ListItem>
+              <ListItem button component={Link} to="/chat">
+                <ListItemIcon>
+                  <ChatIcon />
+                </ListItemIcon>
+                <ListItemText primary="Chat with Einstein" />
+              </ListItem>
+            </List>
+          </Box>
+        </Drawer>
 
-        {/* Right-side components */}
+        {/* Main Content */}
         <Box
           sx={{
-            width: '30%', // Adjust width for the right-side components
             display: 'flex',
-            flexDirection: 'column', // Stack components vertically
-            gap: 4, // Add spacing between components
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            height: 'calc(100vh - 64px)', // Subtract AppBar height
+            backgroundColor: theme.palette.background.default,
+            padding: 4,
           }}
         >
-          <AuditProcesses />
-          <RiskAssessment />
+          <Routes>
+            <Route path="/" element={<Welcome />} />
+            <Route path="/risk-assessment" element={<RiskAsPage />} />
+            <Route path="/audit-processes" element={<AuditPage />} />
+            <Route path="/chat" element={<ChatPage />} />
+          </Routes>
         </Box>
-      </Box>
+      </Router>
     </ThemeProvider>
   );
 }
