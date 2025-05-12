@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from ask_agent import ask_agent  
 from audit import perform_audit  # Import the perform_audit function
+from audit import ask_audit_agent
 import asyncio
 
 app = FastAPI()

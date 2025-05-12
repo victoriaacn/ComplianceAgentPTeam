@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   TextField,
@@ -10,96 +10,118 @@ import {
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CircleIcon from '@mui/icons-material/Circle';
-import DeleteIcon from '@mui/icons-material/Delete'; // Import the trash icon
+import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
-import Tooltip from '@mui/material/Tooltip'; // Import Tooltip
+import Tooltip from '@mui/material/Tooltip';
+import ThinkingEinstein from '../assets/ThinkingEinstein.png';
+import { keyframes, styled } from '@mui/material';
 
 const ChatBox = () => {
   const [question, setQuestion] = useState('');
-  const [responses, setResponses] = useState([]); // Stores all questions and responses
+  const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [riskColor, setRiskColor] = useState('white'); // Default compliance risk indicator color
+  const [riskColor, setRiskColor] = useState('white');
+  const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
-  const theme = useTheme(); // Access the current theme (dark or light mode)
+  const theme = useTheme();
+
+  const bounce = keyframes`
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  `;
+
+  const EinsteinImage = styled('img')(() => ({
+    width: 120,
+    height: 120,
+    animation: `${bounce} 1.5s ease-in-out infinite`,
+  }));
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Scroll to bottom when responses change
+  useEffect(() => {
+    scrollToBottom();
+  }, [responses]);
 
   const handleInputChange = (event) => {
     setQuestion(event.target.value);
   };
 
   const handlePromptClick = (prompt) => {
-    setQuestion(prompt); // Autofill the input field with the selected prompt
+    setQuestion(prompt);
   };
 
   const getRiskColor = (response) => {
-    const responseText = String(response || '').toLowerCase(); // Ensure response is a string and convert to lowercase
-    const words = responseText.split(/\s+/); // Split response into words
+    const responseText = String(response || '').toLowerCase();
+    const words = responseText.split(/\s+/);
   
-    // Check for explicit "Risk Level: High", "Risk Level: Medium", or "Risk Level: Low"
     if (responseText.includes('risk level: high')) {
-      return 'red'; // High risk
+      return 'red';
     }
     if (responseText.includes('risk level: medium')) {
-      return 'yellow'; // Medium risk
+      return 'yellow';
     }
     if (responseText.includes('risk level: low')) {
-      return 'green'; // Low risk
+      return 'green';
     }
   
-    // Check for "high risk" within 3 words
     for (let i = 0; i < words.length; i++) {
       if (words[i] === 'risk') {
         for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
           if (words[j] === 'high') {
-            return 'red'; // High risk
+            return 'red';
           }
         }
       }
       if (words[i] === 'high') {
         for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
           if (words[j] === 'risk') {
-            return 'red'; // High risk
+            return 'red';
           }
         }
       }
     }
   
-    // Check for "medium risk" within 3 words
     for (let i = 0; i < words.length; i++) {
       if (words[i] === 'risk') {
         for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
           if (words[j] === 'medium') {
-            return 'yellow'; // Medium risk
+            return 'yellow';
           }
         }
       }
       if (words[i] === 'medium') {
         for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
           if (words[j] === 'risk') {
-            return 'yellow'; // Medium risk
+            return 'yellow';
           }
         }
       }
     }
   
-    // Check for "low risk" within 3 words
     for (let i = 0; i < words.length; i++) {
       if (words[i] === 'risk') {
         for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
           if (words[j] === 'low') {
-            return 'green'; // Low risk
+            return 'green';
           }
         }
       }
       if (words[i] === 'low') {
         for (let j = i + 1; j <= i + 3 && j < words.length; j++) {
           if (words[j] === 'risk') {
-            return 'green'; // Low risk
+            return 'green';
           }
         }
       }
     }
   
-    return 'white'; // Neutral/low risk
+    return 'white';
   };
 
   const handleSubmit = async (event) => {
@@ -109,17 +131,14 @@ const ChatBox = () => {
       const res = await axios.get(`http://127.0.0.1:8000/ask?question=${encodeURIComponent(question)}`);
       const data = res.data;
 
-      // Ensure response is an array
       const responseArray = Array.isArray(data.response) ? data.response : [data.response];
 
-      // Add the question and response(s) to the responses state
       setResponses((prevResponses) => [...prevResponses, { question, response: responseArray }]);
 
-      // Update the compliance risk indicator color
       const combinedResponse = responseArray.join(' ');
       setRiskColor(getRiskColor(combinedResponse));
 
-      setQuestion(''); // Clear the input field after submitting
+      setQuestion('');
     } catch (error) {
       console.error('Error during API request:', error);
     } finally {
@@ -128,8 +147,8 @@ const ChatBox = () => {
   };
 
   const handleClearChat = () => {
-    setResponses([]); // Clear all chat messages
-    setRiskColor('white'); // Reset the compliance risk indicator
+    setResponses([]);
+    setRiskColor('white');
   };
 
   const handleCopy = (text) => {
@@ -149,13 +168,13 @@ const ChatBox = () => {
     <Box
       sx={{
         width: '100%',
-        maxWidth: 600,
-        height: 500, // Fixed height for the chat box
+        maxWidth: 800,
+        height: 600,
         margin: '0 auto',
         padding: 2,
         borderRadius: 2,
         boxShadow: 3,
-        backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#ffffff', // Outer box color
+        backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#ffffff',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
@@ -174,10 +193,10 @@ const ChatBox = () => {
       >
         <Box
           sx={{
-            width: 20, // Smaller circle
+            width: 20,
             height: 20,
             borderRadius: '50%',
-            backgroundColor: riskColor === 'white' ? 'transparent' : riskColor, // Empty center for neutral
+            backgroundColor: riskColor === 'white' ? 'transparent' : riskColor,
             border: '2px solid grey',
             boxShadow: 2,
             display: 'flex',
@@ -190,7 +209,7 @@ const ChatBox = () => {
         <Typography
           variant="caption"
           sx={{
-            color: theme.palette.text.secondary, // Dynamic text color
+            color: theme.palette.text.secondary,
             fontSize: '0.75rem',
           }}
         >
@@ -200,18 +219,20 @@ const ChatBox = () => {
 
       {/* Chat Messages */}
       <Box
+        ref={chatContainerRef}
         sx={{
           flex: 1,
           overflowY: 'auto',
           padding: 2,
-          backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : '#f0f0f0', // Inner box color
+          backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : '#f0f0f0',
           borderRadius: 2,
-          marginTop: 4, // Add more white space above the grey box
-          display: responses.length === 0 ? 'grid' : 'block', // Show grid layout for prompts if no chats
+          marginTop: 4,
+          display: responses.length === 0 ? 'grid' : 'block',
           gridTemplateColumns: '1fr 1fr',
-          gap: 1, // Reduced gap between rectangles
+          gap: 1,
           alignItems: 'center',
           justifyContent: 'center',
+          position: 'relative', // Added for positioning the Einstein image
         }}
       >
         {responses.length === 0 ? (
@@ -219,16 +240,16 @@ const ChatBox = () => {
             {/* Header Section */}
             <Box
               sx={{
-                gridColumn: 'span 2', // Center the header across both columns
+                gridColumn: 'span 2',
                 textAlign: 'center',
-                marginBottom: 2, // Add spacing below the header
+                marginBottom: 2,
               }}
             >
               <Typography
                 variant="h5"
                 sx={{
                   color: theme.palette.text.primary,
-                  marginBottom: 1, // Add spacing below the title
+                  marginBottom: 1,
                 }}
               >
                 Welcome to Einstein Chat
@@ -239,7 +260,7 @@ const ChatBox = () => {
                   color: theme.palette.text.secondary,
                 }}
               >
-                Your assistant for all your compliance needs. Get started by asking a question or selecting one of the sample questions below.
+               Get started by asking a question or selecting one of the sample questions below:
               </Typography>
             </Box>
 
@@ -272,14 +293,14 @@ const ChatBox = () => {
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent: 'flex-end', // Align to the right
+                  justifyContent: 'flex-end',
                   mb: 1,
                 }}
               >
                 <Box
                   sx={{
-                    backgroundColor: theme.palette.mode === 'dark' ? '#424242' : theme.palette.primary.light, // Darker background for dark mode
-                    color: theme.palette.text.primary, // Dynamic text color
+                    backgroundColor: theme.palette.mode === 'dark' ? '#424242' : theme.palette.primary.light,
+                    color: theme.palette.text.primary,
                     borderRadius: 2,
                     maxWidth: '70%',
                     padding: 2,
@@ -299,14 +320,14 @@ const ChatBox = () => {
                   key={responseIndex}
                   sx={{
                     display: 'flex',
-                    justifyContent: 'flex-start', // Align to the left
+                    justifyContent: 'flex-start',
                     mb: 1,
                   }}
                 >
                   <Box
                     sx={{
-                      backgroundColor: theme.palette.primary.main, // Dynamic dark blue
-                      color: theme.palette.primary.contrastText, // Dynamic text color
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
                       borderRadius: 2,
                       maxWidth: '70%',
                       padding: 2,
@@ -323,7 +344,41 @@ const ChatBox = () => {
             </Box>
           ))
         )}
+        {/* Invisible element to scroll to */}
+        <div ref={messagesEndRef} />
       </Box>
+        {/* Thinking Einstein Animation - Show when loading */}
+        {loading && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 10,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              padding: 3,
+              borderRadius: 2,
+              width: '200px',
+              height: '200px',
+              justifyContent: 'center',
+            }}
+          >
+            <EinsteinImage src={ThinkingEinstein} alt="Einstein Thinking" />
+            <Typography 
+              sx={{ 
+                color: 'white', 
+                marginTop: 2,
+                fontWeight: 'bold'
+              }}
+            >
+              Thinking...
+            </Typography>
+          </Box>
+        )}
 
       {/* Input Form */}
       <form onSubmit={handleSubmit}>
@@ -335,11 +390,11 @@ const ChatBox = () => {
             value={question}
             onChange={handleInputChange}
             sx={{
-              backgroundColor: theme.palette.mode === 'dark' ? '#2c2c2c' : '#ffffff', // Dynamic input background
+              backgroundColor: theme.palette.mode === 'dark' ? '#2c2c2c' : '#ffffff',
               borderRadius: 2,
               '& .MuiOutlinedInput-root': {
                 borderRadius: '25px',
-                color: theme.palette.text.primary, // Dynamic text color
+                color: theme.palette.text.primary,
               },
             }}
           />
@@ -348,10 +403,10 @@ const ChatBox = () => {
             variant="contained"
             disabled={loading || !question.trim()}
             sx={{
-              backgroundColor: theme.palette.primary.main, // Dynamic button color
-              color: theme.palette.primary.contrastText, // Dynamic text color
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
               '&:hover': {
-                backgroundColor: theme.palette.primary.dark, // Darker shade on hover
+                backgroundColor: theme.palette.primary.dark,
               },
             }}
           >

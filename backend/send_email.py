@@ -161,8 +161,12 @@ def send_emails_for_processes(processes):
 
             for recipient in recipients:
                 try:
-                    # Personalize the email body with the recipient's name
+                    # Ensure recipient has a name or use a default
                     recipient_name = recipient.get("name", "Valued Employee")
+                    if "name" not in recipient:
+                        print(f"Warning: Recipient {recipient['email']} is missing a name. Using default 'Valued Employee'.")
+
+                    # Personalize the email body with the recipient's name
                     personalized_body = body_template.replace("{name}", recipient_name)
 
                     # Send the email
