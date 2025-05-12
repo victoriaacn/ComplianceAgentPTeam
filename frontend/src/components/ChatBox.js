@@ -149,8 +149,8 @@ const ChatBox = () => {
     <Box
       sx={{
         width: '100%',
-        maxWidth: 600,
-        height: 500, // Fixed height for the chat box
+        maxWidth: 800,
+        height: 600, // Fixed height for the chat box
         margin: '0 auto',
         padding: 2,
         borderRadius: 2,

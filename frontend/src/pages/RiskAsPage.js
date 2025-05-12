@@ -1,10 +1,11 @@
 import React from 'react';
+import RiskDashboard from '../components/RiskDashboard';
 
-export default function RiskAsPage() {
+const RiskAsPage = () => {
   return (
     <div>
-      <h1>Risk Assessment</h1>
-      {/* Add your risk assessment content here */}
+      <RiskDashboard />
     </div>
   );
 }
+export default RiskAsPage;

@@ -1,10 +1,9 @@
 import React from 'react';
-
+import AuditProcesses from '../components/AuditProcesses';
 const AuditPage = () => {
   return (
     <div>
-      <h1>Audit Processes</h1>
-      {/* Add your audit processes content here */}
+      <AuditProcesses />
     </div>
   );
 };

@@ -38,6 +38,39 @@ function App() {
   const theme = createTheme({
     palette: {
       mode: darkMode ? 'dark' : 'light',
+      primary: {
+        light: darkMode ? '#4f83cc' : '#88bed4', // Adjusted for dark mode
+        dark: darkMode ? '#002f6c' : '#307599',
+        main: darkMode ? '#1565c0' : '#3d97bf',
+        contrastText: '#fff',
+      },
+      secondary: {
+        light: darkMode ? '#ffab91' : '#e5c3b6', // Adjusted for dark mode
+        medium: darkMode ? '#ff7043' : '#d49e88',
+        main: darkMode ? '#ff5722' : '#bd4406',
+        dark: darkMode ? '#bf360c' : '#842600',
+        contrastText: darkMode ? '#fff' : '#000',
+      },
+      background: {
+        default: darkMode ? '#121212' : '#f5f5f5', // Dark mode background
+        paper: darkMode ? '#1e1e1e' : '#ffffff', // Card background
+      },
+      text: {
+        primary: darkMode ? '#ffffff' : '#000000', // Text color for dark mode
+        secondary: darkMode ? '#b0bec5' : '#4f4f4f', // Secondary text color
+      },
+      success: {
+        light: darkMode ? '#81c784' : '#b9f6ca', // Adjusted for dark mode
+        main: darkMode ? '#4caf50' : '#00e676',
+        dark: darkMode ? '#388e3c' : '#00c853',
+        contrastText: '#fff',
+      },
+      info: {
+        light: darkMode ? '#64b5f6' : '#81d4fa', // Adjusted for dark mode
+        main: darkMode ? '#2196f3' : '#29b6f6',
+        dark: darkMode ? '#1976d2' : '#0288d1',
+        contrastText: '#fff',
+      },
     },
     typography: {
       fontFamily: 'Poppins, sans-serif',
@@ -75,6 +108,7 @@ function App() {
                 display: 'flex',
                 alignItems: 'center',
                 textDecoration: 'none', // Remove underline
+                
               }}
             >
               <img
@@ -105,25 +139,45 @@ function App() {
                 <ListItemIcon>
                   <HomeIcon />
                 </ListItemIcon>
-                <ListItemText primary="Welcome" />
+                <ListItemText
+                  primary="Welcome"
+                  sx={{
+                    color: theme.palette.text.primary, // Match the text color to the icons
+                  }}
+                />
               </ListItem>
               <ListItem button component={Link} to="/risk-assessment">
                 <ListItemIcon>
                   <AssessmentIcon />
                 </ListItemIcon>
-                <ListItemText primary="Risk Assessment" />
+                <ListItemText
+                  primary="Risk Assessment"
+                  sx={{
+                    color: theme.palette.text.primary, // Match the text color to the icons
+                  }}
+                />
               </ListItem>
               <ListItem button component={Link} to="/audit-processes">
                 <ListItemIcon>
                   <ListAltIcon />
                 </ListItemIcon>
-                <ListItemText primary="Audit Processes" />
+                <ListItemText
+                  primary="Audit Processes"
+                  sx={{
+                    color: theme.palette.text.primary, // Match the text color to the icons
+                  }}
+                />
               </ListItem>
               <ListItem button component={Link} to="/chat">
                 <ListItemIcon>
                   <ChatIcon />
                 </ListItemIcon>
-                <ListItemText primary="Chat with Einstein" />
+                <ListItemText
+                  primary="Chat with Einstein"
+                  sx={{
+                    color: theme.palette.text.primary, // Match the text color to the icons
+                  }}
+                />
               </ListItem>
             </List>
           </Box>

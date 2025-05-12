@@ -4,7 +4,7 @@ import ChatIcon from '@mui/icons-material/Chat';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { keyframes } from '@mui/system';
-import EinsteinIcon from '../assets/EinsteinIconOnly.png';
+import EinsteinIcon from '../assets/WaveEinstein.png'; // Path to your Einstein icon
 
 export default function Welcome() {
   const theme = useTheme(); // Access the current theme
@@ -119,7 +119,7 @@ export default function Welcome() {
             <Card
               sx={{
                 height: '100%',
-                backgroundColor: '#f5f5f5', // Light gray background for the card
+                backgroundColor: theme.palette.background.paper, // Theme-aware card background
                 color: theme.palette.text.primary, // Theme-aware text color
                 boxShadow: 3,
                 borderRadius: '12px',
@@ -135,7 +135,7 @@ export default function Welcome() {
                 <Typography variant="h5" gutterBottom>
                   Risk Assessment
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" textAlign="center">
                   Identify and categorize risks with actionable insights to ensure compliance.
                 </Typography>
               </CardContent>
@@ -145,7 +145,7 @@ export default function Welcome() {
             <Card
               sx={{
                 height: '100%',
-                backgroundColor: '#f5f5f5', // Light gray background for the card
+                backgroundColor: theme.palette.background.paper, // Theme-aware card background
                 color: theme.palette.text.primary, // Theme-aware text color
                 boxShadow: 3,
                 borderRadius: '12px',
@@ -161,7 +161,7 @@ export default function Welcome() {
                 <Typography variant="h5" gutterBottom>
                   Audit Processes
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" textAlign="center">
                   Streamline your audit processes and track compliance status effortlessly.
                 </Typography>
               </CardContent>
@@ -171,7 +171,7 @@ export default function Welcome() {
             <Card
               sx={{
                 height: '100%',
-                backgroundColor: '#f5f5f5', // Light gray background for the card
+                backgroundColor: theme.palette.background.paper, // Theme-aware card background
                 color: theme.palette.text.primary, // Theme-aware text color
                 boxShadow: 3,
                 borderRadius: '12px',
@@ -187,7 +187,7 @@ export default function Welcome() {
                 <Typography variant="h5" gutterBottom>
                   Chat with Einstein
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" textAlign="center">
                   Get instant answers to your compliance questions with our AI-powered assistant.
                 </Typography>
               </CardContent>
