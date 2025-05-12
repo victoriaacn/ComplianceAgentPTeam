@@ -6,7 +6,7 @@ export default function ChatPage() {
     <div
       style={{
         display: "flex",
-        justifyContent: "flex-start", // Align the chat box to the left
+        justifyContent: "center", // Align the chat box to the left
         alignItems: "flex-start", // Vertically center the chat box
         height: "calc(100vh-400px)", // Full-screen height
         width: "100vw", // Full-screen width

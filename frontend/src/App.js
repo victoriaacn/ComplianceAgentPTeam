@@ -146,6 +146,28 @@ function App() {
                   }}
                 />
               </ListItem>
+               <ListItem button component={Link} to="/chat">
+                <ListItemIcon>
+                  <ChatIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Chat with Einstein"
+                  sx={{
+                    color: theme.palette.text.primary, // Match the text color to the icons
+                  }}
+                />
+              </ListItem>
+                <ListItem button component={Link} to="/audit-processes">
+                <ListItemIcon>
+                  <ListAltIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Audit Processes"
+                  sx={{
+                    color: theme.palette.text.primary, // Match the text color to the icons
+                  }}
+                />
+              </ListItem>
               <ListItem button component={Link} to="/risk-assessment">
                 <ListItemIcon>
                   <AssessmentIcon />
@@ -157,28 +179,7 @@ function App() {
                   }}
                 />
               </ListItem>
-              <ListItem button component={Link} to="/audit-processes">
-                <ListItemIcon>
-                  <ListAltIcon />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Audit Processes"
-                  sx={{
-                    color: theme.palette.text.primary, // Match the text color to the icons
-                  }}
-                />
-              </ListItem>
-              <ListItem button component={Link} to="/chat">
-                <ListItemIcon>
-                  <ChatIcon />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Chat with Einstein"
-                  sx={{
-                    color: theme.palette.text.primary, // Match the text color to the icons
-                  }}
-                />
-              </ListItem>
+
             </List>
           </Box>
         </Drawer>

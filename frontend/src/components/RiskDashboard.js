@@ -15,6 +15,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import CloseIcon from '@mui/icons-material/Close';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import RiskTable from './RiskTable';
+import DashboardEinstein from '../assets/DashboardEinstein.png' // Assuming you have a separate component for the animated Einstein
 
 const RiskDashboard = () => {
   const theme = useTheme();
@@ -54,12 +55,12 @@ const RiskDashboard = () => {
 
   return (
     <Box p={3}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box display="flex"  alignItems="center" mb={2}>
          <Button
         variant="contained"
         onClick={handleRunRiskTest}
         disabled={loading}
-        sx={{ mb: 3 }}
+        sx={{ mb: 2 }}
       >
         {loading ? 'Running...' : 'Run Risk Test'}
       </Button>
@@ -70,53 +71,65 @@ const RiskDashboard = () => {
       </Box>
       
       {/* Render dashboard layout, even before data is loaded */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
-          <Grid container spacing={2}>
-            {[
-              { label: 'High Risk', value: riskData ? riskData.high : 0, color: COLORS[0] },
-              { label: 'Medium Risk', value: riskData ? riskData.medium : 0, color: COLORS[1] },
-              { label: 'Low Risk', value: riskData ? riskData.low : 0, color: COLORS[2] },
-            ].map(({ label, value, color }) => (
-              <Grid item xs={12} key={label}>
-                <Card sx={{ borderLeft: `6px solid ${color}` }}>
-                  <CardContent>
-                    <Typography variant="h6">{label}</Typography>
-                    <Typography variant="h4" color={color}>{value}%</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
+{/* Dashboard layout with stacked cards and pie chart side by side */}
+<Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={3} mb={3}>
+  {/* Risk Cards - Stack */}
+  <Box display="flex" flexDirection="column" gap={3} flexShrink={0}>
+    {[
+      { label: 'High Risk', value: riskData ? riskData.high : 0, color: COLORS[0] },
+      { label: 'Medium Risk', value: riskData ? riskData.medium : 0, color: COLORS[1] },
+      { label: 'Low Risk', value: riskData ? riskData.low : 0, color: COLORS[2] },
+    ].map(({ label, value, color }) => (
+      <Card key={label} sx={{ borderLeft: `6px solid ${color}`, minWidth: 220 }}>
+        <CardContent>
+          <Typography variant="h6">{label}</Typography>
+          <Typography variant="h4" color={color}>{value}%</Typography>
+        </CardContent>
+      </Card>
+    ))}
+  </Box>
 
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" mb={2}>Process Risk Breakdown (%)</Typography>
-            <PieChart width={300} height={300}>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </Paper>
-        </Grid>
+<Box display="flex" flexDirection={{ xs: 'column', md: 'row' }}  justifyContent= "space-between" alignItems="center" gap={2}flexGrow={1}>
+  {/* Pie Chart */}
+  <Paper sx={{ p: 2, minWidth: 300 }}>
+    <Typography variant="h6" mb={2}>Process Risk Breakdown (%)</Typography>
+    <PieChart width={400} height={300}>
+      <Pie
+        data={pieData}
+        cx="50%"
+        cy="50%"
+        labelLine={false}
+        outerRadius={90}
+        fill="#8884d8"
+        dataKey="value"
+      >
+        {pieData.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={COLORS[index]} />
+        ))}
+      </Pie>
+      <Tooltip />
+      <Legend />
+    </PieChart>
+  </Paper>
 
-        <Grid item xs={12} md={4}>
-          <RiskTable />
-        </Grid>
-      </Grid>
+  {/* Einstein Image */}
+  <Box component="img"
+    src={DashboardEinstein}
+    alt="Einstein Dashboard Illustration"
+    sx={{
+      maxWidth: { md: '100%', md: 250 },
+      height: 'auto',
+      mr: 10,
+    }}
+  />
+</Box>
+  
+</Box>
+{/* Risk Table below the chart and cards */}
+<Box mt={3}>
+  <RiskTable />
+</Box>
+
 
      
       {/* Modal with additional info */}

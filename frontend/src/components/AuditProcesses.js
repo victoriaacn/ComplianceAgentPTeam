@@ -10,7 +10,7 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'; // Success icon
 import ErrorIcon from '@mui/icons-material/Error'; // Error icon
-
+import LaptopEinstein from '../assets/LaptopEinstein.png'; // Assuming you have a separate component for the animated Einstein
 const AuditProcesses = () => {
   const theme = useTheme();
   const [loading, setLoading] = useState(false);
@@ -114,8 +114,8 @@ const AuditProcesses = () => {
         color: theme.palette.text.primary,
         borderRadius: 2,
         boxShadow: 2,
-        height: '100vh',
-        width: '100vw',
+        height: '80vh',
+        width: '95vw',
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -128,7 +128,18 @@ const AuditProcesses = () => {
           mb: 2,
         }}
       >
-        <Typography variant="h6">Audit Processes</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <img 
+            src={LaptopEinstein} 
+            alt="Einstein with Laptop" 
+            style={{ 
+              width: '50px', 
+              height: '50px', 
+              objectFit: 'contain'
+            }} 
+          />
+          <Typography variant="h6">Audit Processes</Typography>
+        </Box>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button
             variant="contained"
